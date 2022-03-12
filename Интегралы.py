@@ -6,8 +6,8 @@ from tkinter import scrolledtext
 from tkinter import messagebox
 
 def eval_expression(s, x):
-    allowed_names = {"x": x, "п": math.pi, "pi": math.pi,
-                     "е": math.e, "e": math.e, "sqrt": sqrt,
+    allowed_names = {"x": x, "Рї": math.pi, "pi": math.pi,
+                     "Рµ": math.e, "e": math.e, "sqrt": sqrt,
                      "ln": log, "lg": log10, "log": log,
                      "sin": sin, "cos": cos, "tg": tan,             # ctg = 1 / tg
                      "sh": sinh, "ch": cosh, "th": tanh,            # cth = 1 / th
@@ -16,7 +16,7 @@ def eval_expression(s, x):
     code = compile(s, "<string>", "eval")
     for name in code.co_names:
         if name not in allowed_names:
-            messagebox.showerror('Внимание!', 'Ошибка при вводе данных!')
+            messagebox.showerror('Р’РЅРёРјР°РЅРёРµ!', 'РћС€РёР±РєР° РїСЂРё РІРІРѕРґСѓ РґР°РЅРЅС‹С…!')
     return eval(code, {"__builtins__": {}}, allowed_names)
 
 def rectangles(a, b, m, h):
@@ -33,7 +33,7 @@ def rectangles(a, b, m, h):
             integral *= h
             return integral
     except Exception:
-        messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
+        messagebox.showerror('Р’РЅРёРјР°РЅРёРµ!', 'РћС€РёР±РєР° РїСЂРё РІС‹С‡РёСЃР»РµРЅРёРё!')
 
 
 def trapecies(a, b, m, h):
@@ -52,7 +52,7 @@ def trapecies(a, b, m, h):
             integral *= (h/2)
             return integral
     except Exception:
-        messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
+        messagebox.showerror('Р’РЅРёРјР°РЅРёРµ!', 'РћС€РёР±РєР° РїСЂРё РІС‹С‡РёСЃР»РµРЅРёРё!')
 
 def simpson(a, b, m, h):
     s = txt_int.get()
@@ -69,7 +69,7 @@ def simpson(a, b, m, h):
             integral *= (h / 6)
             return integral
     except Exception:
-        messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
+        messagebox.showerror('Р’РЅРёРјР°РЅРёРµ!', 'РћС€РёР±РєР° РїСЂРё РІС‹С‡РёСЃР»РµРЅРёРё!')
 
 def mistake(h):
     variant = selected.get()
@@ -95,39 +95,39 @@ def clicked():
         elif variant == 3:
             result = '{:.7f}'.format(simpson(a, b, m, h))
         txt1.insert(INSERT, result)
-        txt2.insert(INSERT, '{:.10g}'.format(mistake(h)))
+        txt2.insert(INSERT, '{:.8g}'.format(mistake(h)))
     except Exception:
         pass
 
 window = Tk()  
-window.title("Определённые интегралы")
+window.title("РћРїСЂРµРґРµР»С‘РЅРЅС‹Рµ РёРЅС‚РµРіСЂР°Р»С‹")
 window.geometry('530x350')
-lbl1 = Label(window, text="Формула для вычисления:", font=("Calibri", 11))  
+lbl1 = Label(window, text="Р¤РѕСЂРјСѓР»С‹ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ:", font=("Calibri", 11))  
 lbl1.grid(column=0, row=1, columnspan=4)
 selected = IntVar()
-rad1 = Radiobutton(window, text='прямоугольников', font=("Calibri", 11), value=1, variable=selected)  
-rad2 = Radiobutton(window, text='трапеций', font=("Calibri", 11), value=2, variable=selected)  
-rad3 = Radiobutton(window, text='Симпсона', font=("Calibri", 11), value=3, variable=selected)  
+rad1 = Radiobutton(window, text='РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєРѕРІ', font=("Calibri", 11), value=1, variable=selected)  
+rad2 = Radiobutton(window, text='С‚СЂР°РїРµС†РёР№', font=("Calibri", 11), value=2, variable=selected)  
+rad3 = Radiobutton(window, text='РЎРёРјРїСЃРѕРЅР°', font=("Calibri", 11), value=3, variable=selected)  
 rad1.grid(column=1, row=2)  
 rad2.grid(column=2, row=2)  
 rad3.grid(column=3, row=2)
 lbl2 = Label(window, text=". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .")  
 lbl2.grid(column=0, row=3, columnspan=4)
-lbl3 = Label(window, text="Разбиение на ", font=("Calibri", 11))  
+lbl3 = Label(window, text="Р Р°Р·Р±РёРµРЅРёРµ РЅР° ", font=("Calibri", 11))  
 lbl3.grid(column=1, row=4)
 var = IntVar()
 var.set(1)
 spin = Spinbox(window, from_=1, to=1000, width=5, textvariable=var)  
 spin.grid(column=2, row=4)
-lbl4 = Label(window, text="частей", font=("Calibri", 11))  
+lbl4 = Label(window, text="С‡Р°СЃС‚РµР№", font=("Calibri", 11))  
 lbl4.grid(column=3, row=4)
-lbl5 = Label(window, text="(При разбиении по Симпсону отрезок автоматически делится на 2m частей.)", font=("Calibri", 8))
+lbl5 = Label(window, text="(РџСЂРё СЂР°Р·Р±РёРµРЅРёРё РїРѕ РЎРёРјРїСЃРѕРЅСѓ РѕС‚СЂРµР·РѕРє Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РґРµР»РёС‚СЃСЏ РЅР° 2m С‡Р°СЃС‚РµР№.)", font=("Calibri", 8))
 lbl5.grid(column=1, row=5, columnspan=4)
 lbl6 = Label(window, text=". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .")  
 lbl6.grid(column=0, row=6, columnspan=4)
-lbl7 = Label(window, text="Интеграл:", font=("Calibri", 13))  
+lbl7 = Label(window, text="РРЅС‚РµРіСЂР°Р»:", font=("Calibri", 13))  
 lbl7.grid(column=0, row=7, columnspan=4)
-btn = Button(window, text="Вычислить", command=clicked)  
+btn = Button(window, text="Р’С‹С‡РёСЃР»РёС‚СЊ", command=clicked)  
 btn.grid(column=3, row=7)
 lbl8 = Label(window, text="S", font=("Calibri", 13))  
 lbl8.grid(column=0, row=9)
@@ -141,12 +141,12 @@ txt_int = Entry(window,width=40)
 txt_int.grid(column=1, row=9)
 txt1 = scrolledtext.ScrolledText(window, width=15, height=1)
 txt1.grid(column=3, row=9)
-lbl10 = Label(window, text="Порядок погрешности:", font=("Calibri", 12))  
+lbl10 = Label(window, text="РџРѕСЂСЏРґРѕРє РїРѕРіСЂРµС€РЅРѕСЃС‚Рё:", font=("Calibri", 12))  
 lbl10.grid(column=1, row=11, columnspan=2)
 txt2 = scrolledtext.ScrolledText(window, width=15, height=1)
 txt2.grid(column=3, row=11)
 menu = Menu(window)  
 new_item = Menu(menu, tearoff=0)
-menu.add_cascade(label='О программе', menu=new_item)  
+menu.add_cascade(label='Рћ РїСЂРѕРіСЂР°РјРјРµ', menu=new_item)  
 window.config(menu=menu)
 window.mainloop()
