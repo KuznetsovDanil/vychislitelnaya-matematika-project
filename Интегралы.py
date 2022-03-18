@@ -8,12 +8,12 @@ from tkinter import filedialog as fd
 # преобразование текстового выражения в математическое
 def eval_expression(s, x):
 	allowed_names = {"x": x, "п": math.pi, "pi": math.pi,
-					 "е": math.e, "e": math.e, "sqrt": sqrt,
-					 "ln": log, "lg": log10, "log": log,
-					 "sin": sin, "cos": cos, "tg": tan,             # ctg = 1 / tg
-					 "sh": sinh, "ch": cosh, "th": tanh,            # cth = 1 / th
-					 "arcsin": asin, "arccos": acos, "arctg": atan, # arcctg = pi / 2 - arctg
-					 "arsh": asinh, "arch": acosh, "arth": atanh}
+			"е": math.e, "e": math.e, "sqrt": sqrt,
+			"ln": log, "lg": log10, "log": log,
+			"sin": sin, "cos": cos, "tg": tan,             # ctg = 1 / tg
+			"sh": sinh, "ch": cosh, "th": tanh,            # cth = 1 / th
+			"arcsin": asin, "arccos": acos, "arctg": atan, # arcctg = pi / 2 - arctg
+			"arsh": asinh, "arch": acosh, "arth": atanh}
 	code = compile(s, "<string>", "eval")
 	for name in code.co_names:
 		if name not in allowed_names:
