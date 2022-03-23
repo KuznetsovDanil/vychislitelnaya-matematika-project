@@ -158,6 +158,10 @@ def formuls():
                          \nСимпсон:        (b-a) / 180 * h^4\n
                          \nТочное значение погрешности можно получить, если домножить порядок на max|f''(x)| для формул прямоугольников и трапеций или на max|f(IV) (x)| для квадратуры Симпсона. Значение x при этом лежит на отрезке [a;b].''')
 
+# выход
+def away():
+    exit()
+
 # графический интерфейс
 window = Tk()  
 window.title("Определённые интегралы")
@@ -213,7 +217,7 @@ new_item.add_command(label="О программе", command=info)
 new_item.add_command(label="Помощь", command=help)
 new_item.add_command(label="Формулы", command=formuls)
 new_item.add_separator()
-new_item.add_command(label="Выход", command=exit)
+new_item.add_command(label="Выход", command=away)
 menu.add_cascade(label='Справка', menu=new_item)
 window.config(menu=menu)
 window.mainloop()
