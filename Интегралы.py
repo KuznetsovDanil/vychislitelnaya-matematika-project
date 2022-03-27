@@ -55,7 +55,7 @@ def trapecies(a, b, m, h):
         if m == 1:
             fa = eval_expression(s, a)
             fb = eval_expression(s, b)
-            return (b-a) * (fb-fa) / 2
+            return (b-a) * (fa+fb) / 2
         elif m in range (2, 10001):
             integral = eval_expression(s, a) + eval_expression(s, b)
             x = a + h
