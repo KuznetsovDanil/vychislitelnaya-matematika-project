@@ -4,16 +4,19 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter import messagebox
 from tkinter import filedialog as fd
+from tkinter.ttk import Checkbutton
+import matplotlib.pyplot as plt
+import numpy as np
 
 # преобразование текстового выражения в математическое
 def eval_expression(s, x):
 	allowed_names = {"x": x, "п": math.pi, "pi": math.pi,
-			"е": math.e, "e": math.e, "sqrt": sqrt,
-			"ln": log, "lg": log10, "log": log,
-			"sin": sin, "cos": cos, "tg": tan,             # ctg = 1 / tg
-			"sh": sinh, "ch": cosh, "th": tanh,            # cth = 1 / th
-			"arcsin": asin, "arccos": acos, "arctg": atan, # arcctg = pi / 2 - arctg
-			"arsh": asinh, "arch": acosh, "arth": atanh}
+					 "е": math.e, "e": math.e, "sqrt": sqrt,
+					 "ln": log, "lg": log10, "log": log,
+					 "sin": sin, "cos": cos, "tg": tan,             # ctg = 1 / tg
+					 "sh": sinh, "ch": cosh, "th": tanh,            # cth = 1 / th
+					 "arcsin": asin, "arccos": acos, "arctg": atan, # arcctg = pi / 2 - arctg
+					 "arsh": asinh, "arch": acosh, "arth": atanh}
 	code = compile(s, "<string>", "eval")
 	for name in code.co_names:
 		if name not in allowed_names:
@@ -35,16 +38,29 @@ def insert_expression():
 def rectangles(a, b, m, h):
     s = txt_int.get()
     try:
+        # значения для построения графика
+        xs = [a]
+        j = a + h
+        while j < b:
+            xs += [j] * 2
+            j += h
+        xs += [b]
+
         if m == 1:
-            return (b-a) * eval_expression(s, (a+b)/2)
+            integral = (b-a) * eval_expression(s, (a+b)/2)
+            ys = [eval_expression(s, (a+b)/2)] * 2
+            return [integral, xs, ys]
         elif m in range(2, 10001):
             integral = 0
+            ys = []
             x = a + h/2
             while x < b:
-                integral += eval_expression(s, x)
+                y = eval_expression(s, x)
+                integral += y
+                ys += [y] * 2
                 x += h
             integral *= h
-            return integral
+            return [integral, xs, ys]
     except Exception:
         messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
 
@@ -52,36 +68,78 @@ def rectangles(a, b, m, h):
 def trapecies(a, b, m, h):
     s = txt_int.get()
     try:
+        # значения для построения графика
+        xs = [a]
+        j = a + h
+        while j < b:
+            xs += [j] * 2
+            j += h
+        xs += [b]
+
         if m == 1:
             fa = eval_expression(s, a)
             fb = eval_expression(s, b)
-            return (b-a) * (fa+fb) / 2
+            integral = (b-a) * (fa + fb) / 2
+            ys = [fa, fb]
+            return [integral, xs, ys]
         elif m in range (2, 10001):
-            integral = eval_expression(s, a) + eval_expression(s, b)
+            y = eval_expression(s, a)
+            integral = y
+            ys = [y]
             x = a + h
             while x < b:
-                integral += 2*eval_expression(s, x)
+                y = eval_expression(s, x)
+                integral += 2*y 
+                ys += [y] * 2
                 x += h
+            y = eval_expression(s, b)
+            integral += y
+            ys += [y]
             integral *= (h/2)
-            return integral
+            return [integral, xs, ys]
     except Exception:
         messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
 
 # формула Симпсона
 def simpson(a, b, m, h):
     s = txt_int.get()
+    h /= 2 # для удобства разбиваем шаг деления ещё надвое
     try:
         if m == 1:
-            return (b-a) / 6 * (eval_expression(s, a) + 4*eval_expression(s, (a+b)/2) + eval_expression(s, b))
+            # значения для построения графика
+            xs = []
+            j = a
+            while j < b:
+                xs += [(j + h*i/10) for i in range (0, 21)]
+                j += 2*h
+            y0 = eval_expression(s, a)
+            y1 = eval_expression(s, (a+b)/2)
+            y2 = eval_expression(s, b)
+            integral = (b-a) / 6 * (y0 + 4*y1 + y2)
+            alpha = (y0 - 2*y1 + y2) / (2 * h**2)
+            beta = (y2 - y0 - 4*alpha*((a+b)/2)*h) / (2 * h)
+            gamma = y1 - alpha*((a+b)/2)**2 - beta*(a+b)/2
+            ys = [(alpha*i**2 + beta*i + gamma) for i in xs]
+            return [integral, xs, ys]
         elif m in range (2, 10001):
-            integral = eval_expression(s, a) + eval_expression(s, b)
+            integral = 0
+            xs = []
+            ys = []
             x = a + h
             while x < b:
-                integral += (2*eval_expression(s, x) + 4*eval_expression(s, x - h/2))
-                x += h
-            integral += 4*eval_expression(s, b - h/2)
-            integral *= (h / 6)
-            return integral
+                y0 = eval_expression(s, x - h)
+                y1 = eval_expression(s, x)
+                y2 = eval_expression(s, x + h)
+                integral += (y0 + 4*y1 + y2)
+                alpha = (y0 - 2*y1 + y2) / (2 * h**2)
+                beta = (y2 - y0 - 4*alpha*x*h) / (2 * h)
+                gamma = y1 - alpha*x**2 - beta*x
+                xs1 = [(x + h*i/10) for i in range(-10, 11)]
+                ys += [(alpha*i**2 + beta*i + gamma) for i in xs1]
+                x += 2*h
+                xs += xs1
+            integral *= (b-a)/6
+            return [integral, xs, ys]
     except Exception:
         messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
 
@@ -95,6 +153,23 @@ def mistake(a, b, h):
     elif variant == 3:
         return (b-a) / 180 * (h**4)
 
+def graphic(a, b, m, xs, ys):
+    s = txt_int.get()
+    x = np.linspace(a, b, m*100)
+    y = [eval_expression(s, i) for i in x]
+    variant = selected.get()
+    if variant == 1:
+        plt.title("Квадратура прямоугольников")
+    elif variant == 2:
+        plt.title("Квадратура трапеций")
+    elif variant == 3:
+        plt.title("Квадратура Симпсона")
+    plt.plot(x, y, xs, ys)
+    plt.axis('square')
+    plt.grid(True)
+    plt.fill_between(xs, 0, ys, color="r", alpha=0.3)
+    plt.show()
+
 # кнопка выполнения действий
 def clicked():
     variant = selected.get()
@@ -106,13 +181,21 @@ def clicked():
         m = int(eval_expression(spin.get(), 0))
         h = (b - a) / m
         if variant == 1:
-            result = '{:.10g}'.format(rectangles(a, b, m, h))
+            res = rectangles(a, b, m, h)
+            result = '{:.10f}'.format(res[0])
         elif variant == 2:
-            result = '{:.10g}'.format(trapecies(a, b, m, h))
+            res = trapecies(a, b, m, h)
+            result = '{:.10f}'.format(res[0])
         elif variant == 3:
-            result = '{:.10g}'.format(simpson(a, b, m, h))
+            res = simpson(a, b, m, h)
+            result = '{:.10f}'.format(res[0])
         txt1.insert(INSERT, result)
         txt2.insert(INSERT, '{:.10g}'.format(mistake(a, b, h)))
+        # передача данных для графика
+        xs = res[1]
+        ys = res[2]
+        if chk_state:
+            graphic(a, b, m, xs, ys)
     except Exception:
         pass
 
@@ -127,12 +210,13 @@ def info():
 def help():
     messagebox.showinfo('Помощь', '''Чтобы вычислить интеграл, необходимо:
                          \n1) выбрать формулу для подсчёта;
-                         \n2) указать точность вычисления - число частей, на которые разбивается отрехок;
-                         \n3) ввести функцию для интегрирования:
+                         \n2) указать точность вычисления - число частей, на которые разбивается отрезок;
+                         \n3) нажать кнопку "Строить график" для вывода окна с графическим сравнением функции и выбранной квадратуры;
+                         \n4) ввести функцию для интегрирования:
                          \n   a) с клавиатуры;
                          \n   б) нажать на кнопку и выбрать текстовый файл (*.txt, *.doc) для чтения;
-                         \n4) ввести пределы интегрирования (числа или выражения);
-                         \n5) нажать на кнопку "Вычислить".\n
+                         \n5) ввести пределы интегрирования (числа или выражения);
+                         \n6) нажать на кнопку "Вычислить".\n
                          \nО точности вычисления - см. в разделе "Формулы".
                          \nНе вводите выражения, не являющиеся математически! Это может быть небезопасны для работы программы и компьютера.
                          \nИспользуйте "**" в качестве символа возведения в степень.
@@ -165,7 +249,7 @@ def away():
 # графический интерфейс
 window = Tk()  
 window.title("Определённые интегралы")
-window.geometry('600x350')
+window.geometry('650x350')
 lbl1 = Label(window, text="Формула для вычисления:", font=("Calibri", 11))  
 lbl1.grid(column=0, row=1, columnspan=4)
 selected = IntVar()
@@ -185,6 +269,10 @@ spin = Spinbox(window, from_=1, to=10000, width=5, textvariable=var)
 spin.grid(column=2, row=4)
 lbl4 = Label(window, text="частей", font=("Calibri", 11))  
 lbl4.grid(column=3, row=4)
+chk_state = BooleanVar()  
+chk_state.set(True)
+chk = Checkbutton(window, text='Строить график', var=chk_state)  
+chk.grid(column=0, row=4)  
 lbl5 = Label(window, text="(При разбиении по Симпсону отрезок автоматически делится на 2m частей.)", font=("Calibri", 8))
 lbl5.grid(column=1, row=5, columnspan=4)
 lbl6 = Label(window, text=". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .")  
@@ -203,13 +291,13 @@ lim_down = Entry(window, width=5)
 lim_down.grid(column=0, row=10, padx=5)
 txt_int = Entry(window,width=40)  
 txt_int.grid(column=1, row=9)
-txt1 = scrolledtext.ScrolledText(window, width=15, height=1)
+txt1 = scrolledtext.ScrolledText(window, width=20, height=1)
 txt1.grid(column=3, row=9)
 filename = Button(window, text="Выбрать файл", command=insert_expression)
 filename.grid(column=0, row=11)
 lbl10 = Label(window, text="Порядок погрешности:", font=("Calibri", 12))  
 lbl10.grid(column=1, row=11, columnspan=2)
-txt2 = scrolledtext.ScrolledText(window, width=15, height=1)
+txt2 = scrolledtext.ScrolledText(window, width=20, height=1)
 txt2.grid(column=3, row=11)
 menu = Menu(window)  
 new_item = Menu(menu, tearoff=0)
