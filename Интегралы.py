@@ -1,4 +1,4 @@
-import math
+﻿import math
 from math import *
 from tkinter import *
 from tkinter import scrolledtext
@@ -6,7 +6,6 @@ from tkinter import messagebox
 from tkinter import filedialog as fd
 from tkinter.ttk import Checkbutton
 import matplotlib.pyplot as plt
-import numpy as np
 
 # преобразование текстового выражения в математическое
 def eval_expression(s, x):
@@ -138,7 +137,7 @@ def simpson(a, b, m, h):
                 ys += [(alpha*i**2 + beta*i + gamma) for i in xs1]
                 x += 2*h
                 xs += xs1
-            integral *= (b-a)/6
+            integral *= (b-a)/(6*m)
             return [integral, xs, ys]
     except Exception:
         messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
@@ -155,7 +154,8 @@ def mistake(a, b, h):
 
 def graphic(a, b, m, xs, ys):
     s = txt_int.get()
-    x = np.linspace(a, b, m*100)
+    h = (b-a) / m
+    x = [(a + h*i/30) for i in range(0, m*30+1)]
     y = [eval_expression(s, i) for i in x]
     variant = selected.get()
     if variant == 1:
