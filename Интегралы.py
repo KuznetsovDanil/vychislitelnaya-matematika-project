@@ -1,4 +1,4 @@
-﻿import math
+import math
 from math import *
 from tkinter import *
 from tkinter import scrolledtext
@@ -8,7 +8,7 @@ from tkinter.ttk import Checkbutton
 import matplotlib.pyplot as plt
 
 # преобразование текстового выражения в математическое
-def eval_expression(s, x):
+def eval_expr(s, x):
 	allowed_names = {"x": x, "п": math.pi, "pi": math.pi,
 					 "е": math.e, "e": math.e, "sqrt": sqrt,
 					 "ln": log, "lg": log10, "log": log,
@@ -22,8 +22,16 @@ def eval_expression(s, x):
 			messagebox.showerror('Внимание!', 'Ошибка при вводе данных!')
 	return eval(code, {"__builtins__": {}}, allowed_names)
 
+# возвращение значения функции в точке
+def func(x):
+    s = txt_int.get()
+    try:
+        return eval_expr(s, x)
+    except Exception:
+        pass
+
 # вставка функции из файла
-def insert_expression():
+def insert_expr():
     try:
         file_name = fd.askopenfilename()
         f = open(file_name)
@@ -35,7 +43,6 @@ def insert_expression():
 
 # формула прямоугольников
 def rectangles(a, b, m, h):
-    s = txt_int.get()
     try:
         # значения для построения графика
         xs = [a]
@@ -46,15 +53,15 @@ def rectangles(a, b, m, h):
         xs += [b]
 
         if m == 1:
-            integral = (b-a) * eval_expression(s, (a+b)/2)
-            ys = [eval_expression(s, (a+b)/2)] * 2
+            integral = (b-a) * func((a+b)/2)
+            ys = [func((a+b)/2)] * 2
             return [integral, xs, ys]
         elif m in range(2, 10001):
             integral = 0
             ys = []
             x = a + h/2
             while x < b:
-                y = eval_expression(s, x)
+                y = func(x)
                 integral += y
                 ys += [y] * 2
                 x += h
@@ -65,7 +72,6 @@ def rectangles(a, b, m, h):
 
 # формула трапеций
 def trapecies(a, b, m, h):
-    s = txt_int.get()
     try:
         # значения для построения графика
         xs = [a]
@@ -76,22 +82,20 @@ def trapecies(a, b, m, h):
         xs += [b]
 
         if m == 1:
-            fa = eval_expression(s, a)
-            fb = eval_expression(s, b)
-            integral = (b-a) * (fa + fb) / 2
-            ys = [fa, fb]
+            integral = (b-a) * (func(a) + func(b)) / 2
+            ys = [func(a), func(b)]
             return [integral, xs, ys]
         elif m in range (2, 10001):
-            y = eval_expression(s, a)
+            y = func(a)
             integral = y
             ys = [y]
             x = a + h
             while x < b:
-                y = eval_expression(s, x)
+                y = func(x)
                 integral += 2*y 
                 ys += [y] * 2
                 x += h
-            y = eval_expression(s, b)
+            y = func(b)
             integral += y
             ys += [y]
             integral *= (h/2)
@@ -101,7 +105,6 @@ def trapecies(a, b, m, h):
 
 # формула Симпсона
 def simpson(a, b, m, h):
-    s = txt_int.get()
     h /= 2 # для удобства разбиваем шаг деления ещё надвое
     try:
         if m == 1:
@@ -111,9 +114,9 @@ def simpson(a, b, m, h):
             while j < b:
                 xs += [(j + h*i/10) for i in range (0, 21)]
                 j += 2*h
-            y0 = eval_expression(s, a)
-            y1 = eval_expression(s, (a+b)/2)
-            y2 = eval_expression(s, b)
+            y0 = func(a)
+            y1 = func((a+b)/2)
+            y2 = func(b)
             integral = (b-a) / 6 * (y0 + 4*y1 + y2)
             alpha = (y0 - 2*y1 + y2) / (2 * h**2)
             beta = (y2 - y0 - 4*alpha*((a+b)/2)*h) / (2 * h)
@@ -126,9 +129,9 @@ def simpson(a, b, m, h):
             ys = []
             x = a + h
             while x < b:
-                y0 = eval_expression(s, x - h)
-                y1 = eval_expression(s, x)
-                y2 = eval_expression(s, x + h)
+                y0 = func(x - h)
+                y1 = func(x)
+                y2 = func(x + h)
                 integral += (y0 + 4*y1 + y2)
                 alpha = (y0 - 2*y1 + y2) / (2 * h**2)
                 beta = (y2 - y0 - 4*alpha*x*h) / (2 * h)
@@ -142,21 +145,31 @@ def simpson(a, b, m, h):
     except Exception:
         messagebox.showerror('Внимание!', 'Ошибка при вычислении!')
 
-# порядок погрешности
+# приближённый расчёт погрешности
 def mistake(a, b, h):
+    m = int(spin.get()) # разбиение для подсчёта
+    if m < 100:
+        m = 100
+    h1 = (b-a) / m
+    xn = [(a + i*h1) for i in range(0, m+1)]
     variant = selected.get()
     if variant == 1:
-        return (b-a) / 24 * (h**2)
+        y2 = [((-func(x0+2*h1) + 16*func(x0+h1) - 30*func(x0) + 16*func(x0-h1) - func(x0-2*h1))/(12*h1**2)) for x0 in xn]
+        y2abs = [fabs(y) for y in y2]
+        return (b-a) / 24 * (h**2) * max(y2abs)
     elif variant == 2:
-        return (b-a) / 12 * (h**2)
+        y2 = [((-func(x0+2*h1) + 16*func(x0+h1) - 30*func(x0) + 16*func(x0-h1) - func(x0-2*h1))/(12*h1**2)) for x0 in xn]
+        y2abs = [fabs(y) for y in y2]
+        return (b-a) / 12 * (h**2) * max(y2abs)
     elif variant == 3:
-        return (b-a) / 180 * (h**4)
+        y4 = [((func(x0+4*h1) - 32*func(x0+3*h1) + 316*func(x0+2*h1) - 992*func(x0+h1) + 1414*func(x0) -
+               992*func(x0-h1) + 316*func(x0-2*h1) - 32*func(x0-3*h1) + func(x0-4*h1))/(144*h1**4)) for x0 in xn]
+        y4abs = [fabs(y) for y in y4]
+        return (b-a) / 180 * (h**4) * max(y4abs)
 
-def graphic(a, b, m, xs, ys):
-    s = txt_int.get()
-    h = (b-a) / m
+def graphic(a, m, h, xs, ys):
     x = [(a + h*i/30) for i in range(0, m*30+1)]
-    y = [eval_expression(s, i) for i in x]
+    y = [func(i) for i in x]
     variant = selected.get()
     if variant == 1:
         plt.title("Квадратура прямоугольников")
@@ -176,26 +189,26 @@ def clicked():
     txt1.delete(1.0, END)
     txt2.delete(1.0, END)
     try:
-        a = float(eval_expression(lim_down.get(), 0))
-        b = float(eval_expression(lim_up.get(), 0))
-        m = int(eval_expression(spin.get(), 0))
+        a = float(eval_expr(lim_down.get(), 0))
+        b = float(eval_expr(lim_up.get(), 0))
+        m = int(eval_expr(spin.get(), 0))
         h = (b - a) / m
         if variant == 1:
             res = rectangles(a, b, m, h)
-            result = '{:.10f}'.format(res[0])
+            result = round(res[0], 12)    # дальше этого разряда возникает ошибка округления
         elif variant == 2:
             res = trapecies(a, b, m, h)
-            result = '{:.10f}'.format(res[0])
+            result = round(res[0], 12)
         elif variant == 3:
             res = simpson(a, b, m, h)
-            result = '{:.10f}'.format(res[0])
+            result = round(res[0], 12)
         txt1.insert(INSERT, result)
-        txt2.insert(INSERT, '{:.10g}'.format(mistake(a, b, h)))
+        txt2.insert(INSERT, round(mistake(a, b, h), 19))
         # передача данных для графика
         xs = res[1]
         ys = res[2]
-        if chk_state:
-            graphic(a, b, m, xs, ys)
+        if chk_state.get():
+            graphic(a, m, h, xs, ys)
     except Exception:
         pass
 
@@ -220,7 +233,9 @@ def help():
                          \nО точности вычисления - см. в разделе "Формулы".
                          \nНе вводите выражения, не являющиеся математически! Это может быть небезопасны для работы программы и компьютера.
                          \nИспользуйте "**" в качестве символа возведения в степень.
-                         \nПредельно доступное число шагов разбиения - 10000.''')
+                         \nПредельно доступное число шагов разбиения - 10000.\n
+                         \nВнимание! Квадратуры могут давать сбои при сильном дроблении отрезка (m>100). Желательно проверять найденные значения.
+                         \nВнимание! Большое количество частей отрезка может значительно увеличивать время работы программы.''')
 
 # список формул
 def formuls():
@@ -235,12 +250,16 @@ def formuls():
                          \nm > 1       ∫ f(x) dx ~ h/2 * (f(a) + 2*f(a+h) + ... + 2*f(b-h) + f(b))\n
                          \nКвадратура Симпсона:
                          \nm = 1       ∫ f(x) dx ~ (b-a)/6 * (f(a) + 4*f((a+b)/2) + f(b))
-                         \nm > 1       ∫ f(x) dx ~ h/6 * (f(a) + f(b) + 2*(f(a+h)+...+f(b-h)) + 4*(f(a+h/2)+...+f(b-h/2)))\n
-                         \nПорядок погрешности - выражение, позволяющее оценить возможное отклонение значения от точного. В данном приложении равен:
-                         \nпрямоугольники: (b-a) / 24  * h^2
-                         \nтрапеции:       (b-a) / 12  * h^2
-                         \nСимпсон:        (b-a) / 180 * h^4\n
-                         \nТочное значение погрешности можно получить, если домножить порядок на max|f''(x)| для формул прямоугольников и трапеций или на max|f(IV) (x)| для квадратуры Симпсона. Значение x при этом лежит на отрезке [a;b].''')
+                         \nm > 1       ∫ f(x) dx ~ h/6 * (f(a) + f(b) + 2*(f(a+h)+...+f(b-h)) + 4*(f(a+h/2)+...+f(b-h/2)))\n\n
+                         \nПогрешность вычисляется приближённо по специальным формулам с указанным шагом h.
+                         \nКвадратура прямоугольников:
+                         \n∆ = (b-a)/24 * h^2 * |max f''(x)|
+                         \nКвадратура трапеций:
+                         \n∆ = (b-a)/12 * h^2 * |max f''(x)|
+                         \nКвадратура Симпсона:
+                         \n∆ = (b-a)/180 * h^4 * |max fIV(x)|\n
+                         \nf''(x0) ~ 1/12h^2 * (-f(x0+2h) + 16f(x0+h) - 30f(x0) + 16f(x0-h) - f(x0-2h))
+                         \nfIV(x0) ~ 1/144h^2 * (f(x0+4h) - 32(x0+3h) + 316f(x0+2h) - 992f(x0+h) + 1414f(x0) - 992f(x0-h) + 316f(x0-2h) - 32f(x0-3h) + f(x0-4h))''')
 
 # выход
 def away():
@@ -293,9 +312,9 @@ txt_int = Entry(window,width=40)
 txt_int.grid(column=1, row=9)
 txt1 = scrolledtext.ScrolledText(window, width=20, height=1)
 txt1.grid(column=3, row=9)
-filename = Button(window, text="Выбрать файл", command=insert_expression)
+filename = Button(window, text="Выбрать файл", command=insert_expr)
 filename.grid(column=0, row=11)
-lbl10 = Label(window, text="Порядок погрешности:", font=("Calibri", 12))  
+lbl10 = Label(window, text="Погрешность:", font=("Calibri", 12))  
 lbl10.grid(column=1, row=11, columnspan=2)
 txt2 = scrolledtext.ScrolledText(window, width=20, height=1)
 txt2.grid(column=3, row=11)
