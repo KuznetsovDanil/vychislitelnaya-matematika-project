@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ProfilingTarget xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ProjectTarget>
+    <TargetProject>89cde454-76ad-415e-bf69-1aaccf7a7052</TargetProject>
+    <FriendlyName>Maths</FriendlyName>
+  </ProjectTarget>
+  <Reports>
+    <Report>
+      <Filename>C:\Users\DanielSmith\AppData\Local\Temp\Maths_20220604.vsp</Filename>
+    </Report>
+    <Report>
+      <Filename>C:\Users\DanielSmith\AppData\Local\Temp\Maths_20220604.vsp</Filename>
+    </Report>
+    <Report>
+      <Filename>C:\Users\DanielSmith\AppData\Local\Temp\Maths_20220604.vsp</Filename>
+    </Report>
+  </Reports>
+  <UseVTune>false</UseVTune>
+</ProfilingTarget>
